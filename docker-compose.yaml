@@ -1,0 +1,71 @@
+services:
+  shanta_asf:
+#    build: .
+    container_name: shanta_asf
+    image: shanta_asf:latest
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    volumes:
+      - ./.env:/app/.env:ro
+
+    environment:
+      TZ: Asia/Dhaka
+
+    depends_on:
+      - mariadb
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  mariadb:
+    image: mariadb:11.3
+    container_name: mariadb
+    restart: unless-stopped
+
+    environment:
+      TZ: Asia/Dhaka
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${DB_NAME}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASS}
+
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+    ports:
+      - "3306:3306"   # optional (remove in production)
+
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+
+    environment:
+      TZ: Asia/Dhaka
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+
+    volumes:
+      - grafana_data:/var/lib/grafana
+
+    ports:
+      - "3000:3000"
+
+    depends_on:
+      - mariadb
+
+volumes:
+  mariadb_data:
+  grafana_data:

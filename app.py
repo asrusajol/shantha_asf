@@ -6,12 +6,10 @@ from storage.dashboard_repository import save_snapshot
 from config.settings import PORTAL_USERNAME, PORTAL_PASSWORD
 
 
-# for nav in scrape_nav():
-#     save_nav(nav)
+for nav in scrape_nav():
+    save_nav(nav)
 
 login(PORTAL_USERNAME,PORTAL_PASSWORD)
-# scrape_dashboard()
-
 for row in scrape_dashboard():
     save_snapshot(row)
 
